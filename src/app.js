@@ -11,6 +11,29 @@ app.use(express.json());
 const users = [];
 const tweets = [];
 
+app.get("/tweets", (req, res) => {
+    if (tweets.length === 0) return res.send(tweets);
+    const posts = [];
+    let count = 0;
+
+    for (let i = tweets.length - 1; i >= 0; i--) {
+        for (let j = 0; j < users.length; j++) {
+            if (users[j].username === tweets[i].username && count < 10) {
+                const post = {
+                    username: users[j].username,
+                    avatar: users[j].avatar,
+                    tweet: tweets[i].tweet
+                };
+
+                posts.push(post);
+                count++;
+            }
+        }
+    }
+
+    res.send(posts);
+});
+
 app.post("/sign-up", (req, res) => {
     const { username, avatar } = req.body;
     const newUser = { username, avatar };
@@ -24,10 +47,10 @@ app.post("/tweets", (req, res) => {
     const userExists = users.find(user => user.username === username);
 
     if (!userExists) {
-        res.send("UNAUTHORIZED");
+        return res.send("UNAUTHORIZED");
     }
 
-    const newTweet = { tweet };
+    const newTweet = { username, tweet };
 
     tweets.push(newTweet);
     res.send("OK");
