@@ -19,4 +19,18 @@ app.post("/sign-up", (req, res) => {
     res.send("OK");
 });
 
-app.listen(PORT, () => console.log(`Server rodando na porta: ${PORT}`));
+app.post("/tweets", (req, res) => {
+    const { username, tweet } = req.body;
+    const userExists = users.find(user => user.username === username);
+
+    if (!userExists) {
+        res.send("UNAUTHORIZED");
+    }
+
+    const newTweet = { tweet };
+
+    tweets.push(newTweet);
+    res.send("OK");
+});
+
+app.listen(PORT, () => console.log(`Servidor rodando na porta: ${PORT}`));
