@@ -34,7 +34,7 @@ app.get("/tweets", (req, res) => {
         const user = users.find(({ username }) => username === item.username);
 
         const post = {
-            username: user.username,
+            username: item.username,
             avatar: user.avatar,
             tweet: item.tweet
         };
@@ -47,35 +47,35 @@ app.get("/tweets", (req, res) => {
 
 app.get("/tweets/:username", (req, res) => {
     const { username } = req.params;
-    const user_tweets = [];
+    const userTweets = [];
 
-    tweets.forEach(tweet_obj => {
-        const user_data_obj = users.find(user_obj => user_obj.username === username);
+    tweets.forEach(_tweet => {
+        const userData = users.find(_user => _user.username === username);
 
-        if (!user_data_obj) return res.status(404);
+        if (!userData) return res.status(404);
 
-        if (user_data_obj.username === tweet_obj.username) {
-            const user_tweet = {
-                username: user_data_obj.username,
-                avatar: user_data_obj.avatar,
-                tweet: tweet_obj.tweet
+        if (userData.username === _tweet.username) {
+            const userTweet = {
+                username: userData.username,
+                avatar: userData.avatar,
+                tweet: _tweet.tweet
             };
 
-            user_tweets.push(user_tweet);
+            userTweets.push(userTweet);
         }
     });
 
-    res.send(user_tweets.reverse());
+    res.send(userTweets.reverse());
 });
 
 app.post("/sign-up", (req, res) => {
     const { username, avatar } = req.body;
 
     // Validar dados recebidos
-    const invalid_username = !username || typeof (username) !== "string";
-    const invalid_avatar = !avatar || typeof (avatar) !== "string";
+    const invalidUsername = !username || typeof (username) !== "string";
+    const invalidAvatar = !avatar || typeof (avatar) !== "string";
 
-    if (invalid_username || invalid_avatar) {
+    if (invalidUsername || invalidAvatar) {
         res.status(400).send("Todos os campos são obrigatórios!");
         return;
     }
@@ -87,26 +87,27 @@ app.post("/sign-up", (req, res) => {
 });
 
 app.post("/tweets", (req, res) => {
-    const { username, tweet } = req.body;
+    const { tweet } = req.body;
+    const { user } = req.headers;
 
     // validar dados recebidos
-    const invalid_username = !username || typeof (username) !== "string";
-    const invalid_tweet = !tweet || typeof (tweet) !== "string";
+    const invalidUsername = !user || typeof (user) !== "string";
+    const invalidTweet = !tweet || typeof (tweet) !== "string";
 
-    if (invalid_username || invalid_tweet) {
+    if (invalidUsername || invalidTweet) {
         res.status(400).send("Todos os campos são obrigatórios!");
         return;
     }
 
     // verificar se usuario existe
-    const userExists = users.find(user => user.username === username);
+    const userExists = users.find(_user => _user.username === user);
 
     if (!userExists) {
         res.status(401).send("UNAUTHORIZED");
         return;
     }
 
-    const newTweet = { username, tweet };
+    const newTweet = { username: user, tweet };
 
     tweets.push(newTweet);
     res.status(201).send("OK");
