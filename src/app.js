@@ -49,12 +49,13 @@ app.post("/sign-up", (req, res) => {
     const newUser = { username, avatar };
 
     users.push(newUser);
-    res.send("OK");
+    res.status(201).send("OK");
 });
 
 app.post("/tweets", (req, res) => {
     const { username, tweet } = req.body;
 
+    // validar dados recebidos
     const invalid_username = !username || typeof (username) !== "string";
     const invalid_tweet = !tweet || typeof (tweet) !== "string";
 
@@ -63,17 +64,18 @@ app.post("/tweets", (req, res) => {
         return;
     }
 
+    // verificar se usuario existe
     const userExists = users.find(user => user.username === username);
 
     if (!userExists) {
-        res.send("UNAUTHORIZED");
+        res.status(401).send("UNAUTHORIZED");
         return;
     }
 
     const newTweet = { username, tweet };
 
     tweets.push(newTweet);
-    res.send("OK");
+    res.status(201).send("OK");
 });
 
 app.listen(PORT, () => console.log(`Servidor rodando na porta: ${PORT}`));
