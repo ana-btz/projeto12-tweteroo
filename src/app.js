@@ -12,25 +12,35 @@ const users = [];
 const tweets = [];
 
 app.get("/tweets", (req, res) => {
-    if (tweets.length === 0) return res.send(tweets);
+    const { page } = req.query;
+
+    let start = 0;
+    let end = 10;
+
+    if (page && (+ page) < 1) {
+        res.status(400).send("Informe uma página válida!");
+        return;
+    }
+
+    if (page && (+ page) > 1) {
+        end = 10 * (+ page);
+        start = end / 2;
+    }
 
     const posts = [];
-    let count = 0;
+    const pageTweets = [...tweets].reverse().slice(start, end);
 
-    for (let i = tweets.length - 1; i >= 0; i--) {
-        for (let item of users) {
-            if (item.username === tweets[i].username && count < 10) {
-                const post = {
-                    username: item.username,
-                    avatar: item.avatar,
-                    tweet: tweets[i].tweet
-                };
+    pageTweets.forEach(item => {
+        const user = users.find(({ username }) => username === item.username);
 
-                posts.push(post);
-                count++;
-            }
-        }
-    }
+        const post = {
+            username: user.username,
+            avatar: user.avatar,
+            tweet: item.tweet
+        };
+
+        posts.push(post);
+    });
 
     res.send(posts);
 });
