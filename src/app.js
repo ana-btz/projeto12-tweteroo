@@ -35,9 +35,33 @@ app.get("/tweets", (req, res) => {
     res.send(posts);
 });
 
+app.get("/tweets/:username", (req, res) => {
+    const { username } = req.params;
+    const user_tweets = [];
+
+    tweets.forEach(tweet_obj => {
+        const user_data_obj = users.find(user_obj => user_obj.username === username);
+
+        if (!user_data_obj) return res.status(404);
+
+        if (user_data_obj.username === tweet_obj.username) {
+            const user_tweet = {
+                username: user_data_obj.username,
+                avatar: user_data_obj.avatar,
+                tweet: tweet_obj.tweet
+            };
+
+            user_tweets.push(user_tweet);
+        }
+    });
+
+    res.send(user_tweets.reverse());
+});
+
 app.post("/sign-up", (req, res) => {
     const { username, avatar } = req.body;
 
+    // Validar dados recebidos
     const invalid_username = !username || typeof (username) !== "string";
     const invalid_avatar = !avatar || typeof (avatar) !== "string";
 
